@@ -4,18 +4,24 @@ server2 ansible_host=[server2-ip] ansible_user=ubuntu ansible_ssh_private_key_fi
 
 
 
--- name: Install Nginx on AWS EC2
-   hosts: webservers
-   become: yes
-   tasks:
-     - name: Install Nginx
-       apt:
-         name: nginx
-         state: present
-       when: ansible_os_family == "Debian"
+---
+- name: Install Nginx Web Server
+  hosts: all
+  become: true
 
-     - name: start and enable nginx server
-       systemd:
-         name: nginx
-         state: started
-         enabled: yes
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Ensure nginx is started and enabled
+      service:
+        name: nginx
+        state: started
+        enabled: true
